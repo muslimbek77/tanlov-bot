@@ -2,7 +2,6 @@
 
 Bu Telegram bot "Ko'prikqurilish" AJ uchun xodimlar tanlovini o'tkazish uchun yaratilgan.
 
-**Bot:** [@foundationuzbot](https://t.me/foundationuzbot)
 
 ## ✨ Xususiyatlari
 
