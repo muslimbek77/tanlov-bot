@@ -1,6 +1,6 @@
 # Ko'prikqurilish AJ - Tanlov Bot 🗳️
 
-Bu Telegram bot "Ko'prikqurilish" AJ uchun xodimlar tanlovini o'tkazish uchun yaratilgan.
+Bu Telegram bot "Ko'prikqurilish" AJ uchun rahbarlar tanlovini o'tkazish uchun yaratilgan.
 
 
 ## ✨ Xususiyatlari
@@ -147,7 +147,7 @@ Ko'prikqurilish AJ tanlov boti. 3 ta nominatsiyada ovoz bering va natijalarni ku
 
 **Description:**
 ```
-Ko'prikqurilish AJ xodimlar tanlovini o'tkazish uchun bot. Ovoz bering, natijalarni ko'ring!
+Ko'prikqurilish AJ rahbarlar tanlovini o'tkazish uchun bot. Ovoz bering, natijalarni ko'ring!
 ```
 
 **Commands:**
