@@ -355,8 +355,8 @@ async def generate_results_pdf() -> str:
                 nom_title = nomination['title']
                 percentage = f"{max_votes/total*100:.1f}%" if total > 0 else "0%"
                 
-                # Barcha g'oliblar ismlarini birlashtirish
-                winner_names = "\n".join([w['name'] for w in winners])
+                # Barcha g'oliblar lavozimi va F.I.Sh. birga chiqariladi
+                winner_names = "\n".join([f"{w['position']} ({w['name']})" for w in winners])
                 
                 # Agar bir nechta g'olib bo'lsa, "(teng)" qo'shish
                 votes_text = f"{max_votes} ({percentage})"

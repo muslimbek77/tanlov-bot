@@ -5,55 +5,52 @@ load_dotenv()
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 ADMIN_IDS = [int(x) for x in os.getenv("ADMIN_IDS", "").split(",") if x.strip()]
-
-# Database
 DATABASE_PATH = "database.db"
 
-# Nominatsiyalar
 NOMINATIONS = {
     "nomination_1": {
-        "title": "Yilning eng adolatli va shaffof boshqaruv raisi o'rinbosari",
-        "description": '"Ko\'prikqurilish" Ajda "Yilning eng adolatli va shaffof boshqaruv raisi o\'rinbosari" nominatsiyasiga ovoz bering.\nKeling, halollikni qadrlaymiz, halollikni qo\'llab-quvvatlab ularga xolisona ovoz beramiz! Sizning ovozingiz ahamiyatga ega.',
+        "title": "Ko‘prikqurilish” AJda — Yilning eng adolatli va shaffof boshqaruv raisi o‘rinbosari",
+        "description": "“Ko‘prikqurilish” AJda “Yilning eng adolatli va shaffof boshqaruv raisi o‘rinbosari” nominasiyasiga ovoz bering.",
         "candidates": [
-            {"id": 1, "name": "Isaev Qudrat Toshpo'latovich", "position": "Boshqaruv raisining birinchi o'rinbosari"},
-            {"id": 2, "name": "Rajabov Abdulxakim Gulomovich", "position": "Boshqaruv raisi o'rinbosari"},
-            {"id": 3, "name": "Qodirov Nodirxon Abduminovich", "position": "Boshqaruv raisi o'rinbosari"},
-            {"id": 4, "name": "Komilov Farxod Abduxamidovich", "position": "Boshqaruv raisi o'rinbosari"},
-            {"id": 5, "name": "Axatov Zafarbek Iskandar o'g'li", "position": "Boshqaruv raisi o'rinbosari"},
-        ]
-    },
-    "nomination_2": {
-        "title": "Yilning eng adolatli va shaffof tizim korxona rahbari",
-        "description": '"Ko\'prikqurilish" Ajda "Yilning eng adolatli va shaffof tizim korxona rahbari" nominatsiyasiga ovoz bering.\nKeling, halollikni qadrlaymiz, halollikni qo\'llab-quvvatlab ularga xolisona ovoz beramiz! Sizning ovozingiz ahamiyatga ega.',
-        "candidates": [
-            {"id": 1, "name": "Usanov Ilyos Sheralievich", "position": '"1-Ko\'prikqurilish otryadi" MChJ direktori'},
-            {"id": 2, "name": "Axmedjanov Ulug'bek Nig'matjanovich", "position": '"13-Ko\'prikqurilish otryadi" boshlig\'i'},
-            {"id": 3, "name": "Ibadullaev Artur Karimovich", "position": '"14-Ko\'prikqurilish otryadi" boshlig\'i'},
-            {"id": 4, "name": "Axmedov Ravshan Kuchkarovich", "position": '"67-Ko\'prikqurilish otryadi" boshlig\'i'},
-            {"id": 5, "name": "Xonkeldiyev Rustamjon Muxammadovich", "position": '"Ko\'prikqurilishbutlash" MChJ direktori'},
-            {"id": 6, "name": "Annakulov Anarbay Xudayberdievich", "position": '"Ko\'prikqurilishfoydalanish" MChJ direktori'},
-            {"id": 7, "name": "Kamalov Azamat Xusniddinovich", "position": '"Ko\'priksifatnazorat" MChJ direktori'},
-            {"id": 8, "name": "Axatov Zafarbek Iskandar o'g'li", "position": '"Ko\'prikqurilishloyiha" MChJ direktori'},
-            {"id": 9, "name": "Ismoilov Dilshodbek Shuxratovich", "position": '"Ko\'prikqurilishtamirlashdireksiyasi" MChJ direktori'},
-            {"id": 10, "name": "Djumaniyzov Shuxrat Aminovich", "position": '"Xorazm temir yo\'l qurilish" MChJ direktori'},
+            {"id": 1, "name": "Boshqaruv raisining birinchi o‘rinbosari", "position": "Isaev Qudrat Toshpo‘latovich"},
+            {"id": 2, "name": "Boshqaruv raisining raqamlashtirish va axborot texnologiyalari bo‘yicha o‘rinbosari", "position": "Axatov Zafarbek Iskandar o‘g‘li"},
+            {"id": 3, "name": "Boshqaruv raisi o‘rinbosari", "position": "Rajabov Abdulxakim Gulomovich"},
+            {"id": 4, "name": "Boshqaruv raisi o‘rinbosari", "position": "Kamilov Farxod Abduxamidovich"},
+            {"id": 5, "name": "Boshqaruv raisi o‘rinbosari", "position": "Kadirov Nodirxon Abdumo‘minovich"}
         ]
     },
     "nomination_3": {
-        "title": "Yilning eng adolatli va shaffof markaziy apparat boshqarma va bo'lim boshlig'i",
-        "description": '"Ko\'prikqurilish" Ajda "Yilning eng adolatli va shaffof markaziy apparat boshqarma va bo\'lim boshlig\'i" nominatsiyasiga ovoz bering.\nKeling, halollikni qadrlaymiz, halollikni qo\'llab-quvvatlab ularga xolisona ovoz beramiz! Sizning ovozingiz ahamiyatga ega.',
+        "title": "Ko‘prikqurilish” AJda — Yilning eng adolatli va shaffof markaziy apparat boshqarma va bo‘lim boshlig‘i",
+        "description": "“Ko‘prikqurilish” AJda “Yilning eng adolatli va shaffof markaziy apparat boshqarma va bo‘lim boshlig‘i” nominasiyasiga ovoz bering.",
         "candidates": [
-            {"id": 1, "name": "Matnazarov Og'aboy Kamirovich", "position": "XT, TS, MQ va Sh boshqarmasi boshlig'i"},
-            {"id": 2, "name": "Alimov Otabek Maxmudovich", "position": "QM, E va MM boshqarmasi boshlig'i"},
-            {"id": 3, "name": "Pozdnyakov Aleksandr Alekseyevich", "position": "Arxitektura va qurilishni rejalashtirish boshqarmasi boshlig'i"},
-            {"id": 4, "name": "Majidov Boburjon Mustafo o'g'li", "position": "Iqtisodiyot va istiqbolni belgilash boshqarmasi boshlig'i"},
-            {"id": 5, "name": "Mamadaliyev Abdulmajit Ma'rufjon o'g'li", "position": "R va AKTni joriy qilish boshqarmasi boshliq o'rinbosari"},
-            {"id": 6, "name": "Xonkeldiyev Davron Inomjonovich", "position": "Ishlab chiqarish va pudrat ishlari boshqarmasi boshlig'i"},
-            {"id": 7, "name": "Malikov Kabildjan Vasikovich", "position": "Devonxona va ijro nazorati boshqarmasi boshlig'i o'rinbosari"},
-            {"id": 8, "name": "Tursunbayev Farrux Jurabay o'g'li", "position": "Korrupsiyaga qarshi kurashish boshqarmasi boshlig'i"},
-            {"id": 9, "name": "Raximbabayeva Lola Amurdjanovna", "position": "PB va KT boshqarmasi boshlig'i"},
-            {"id": 10, "name": "Malikov Temur-Malik Fotixovich", "position": "Yuridik boshqarma boshlig'i"},
-            {"id": 11, "name": "Xamidinov Alisher Gafurovich", "position": "Buxgalteriya hisobi va MXXS yuritish bo'limi boshlig'i"},
-            {"id": 12, "name": "Pulatov Rustam Nabidjonovich", "position": "Maxsus bo'lim boshlig'i"},
+            {"id": 1, "name": "Buxgalteriya hisobi va MXXS yuritish bo‘limi boshlig‘i – bosh hisobchi", "position": "Hamidinov Alisher G‘afurovich"},
+            {"id": 2, "name": "Iqtisodiyot, istiqbolni belgilash va korporativ munosabatlar boshqarmasi boshlig‘i", "position": "Majidov Boburjon Mustafo o‘g‘li"},
+            {"id": 3, "name": "Personallarni boshqarish va kadrlarni tayyorlash boshqarmasi boshlig‘i", "position": "Rahimbabaeva Lola Amurdjanovna"},
+            {"id": 4, "name": "Xaridlarni tashkillashtirish, tartibga solish, monitoring qilish va shartnomalar boshqarmasi boshlig‘i", "position": "Matnazarov O‘g‘aboy Karimovich"},
+            {"id": 5, "name": "Yuridik boshqarma boshlig‘i", "position": "Malikov Temur-Malik Fotihovich"},
+            {"id": 6, "name": "Korrupsiyaga qarshi kurashish va komplaens nazorat boshqarmasi boshlig‘i", "position": "Tursunboyev Farrux Jo‘raboy o‘g‘li"},
+            {"id": 7, "name": "Arxitektura va boshqaruvni rejalashtirish boshqarmasi boshlig‘i", "position": "Pozdnyakov Aleksandr Alekseyevich"},
+            {"id": 8, "name": "Qurilishni mexanizatsiyalashtirish, energetika va mehnat muhofazasi boshqarmasi boshlig‘i", "position": "Alimov Otabek Maxmudovich"},
+            {"id": 9, "name": "Devonxona, ijro nazorati va xo‘jalik ishlari yuritish boshqarmasi boshlig‘i o‘rinbosari", "position": "Malikov Qobiljon Vasikovich"},
+            {"id": 10, "name": "Raqamlashtirish va AKTni joriy qilish boshqarmasi boshlig‘i o‘rinbosari", "position": "Mamadaliyev Abdulmajit Ma’rufjon o‘g‘li"},
+            {"id": 11, "name": "Maxsus bo‘lim boshlig‘i", "position": "Pulatov Rustam Nabidjonovich"},
+            {"id": 12, "name": "Ishlab chiqarish va pudrat ishlari boshqarmasi boshlig‘i", "position": "Xonkeldiev Davron Inomjonovich"}
+        ]
+    },
+    "nomination_2": {
+        "title": "Ko‘prikqurilish” AJda — Yilning eng adolatli va shaffof tizim korxonasi rahbari",
+        "description": "“Ko‘prikqurilish” AJda “Yilning eng adolatli va shaffof tizim korxonasi rahbari” nominasiyasiga ovoz bering.",
+        "candidates": [
+            {"id": 1, "name": "13-sonli “Ko‘prikqurilish” otryadi boshlig‘i", "position": "Axmedjanov Ulug‘bek Nigmatdjanovich"},
+            {"id": 2, "name": "14-sonli “Ko‘prikqurilish” otryadi boshlig‘i", "position": "Ibadullaev Artur Karimovich"},
+            {"id": 3, "name": "67-sonli “Ko‘prikqurilish” otryadi boshlig‘i", "position": "Axmedov Ravshan Quchkarovich"},
+            {"id": 4, "name": "“1-Ko‘prikqurilish otryadi” MChJ direktori", "position": "Usanov Ilyos Sheralievich"},
+            {"id": 5, "name": "“Ko‘prikqurilishbutlash” MChJ direktori", "position": "Xonkeldiev Rustamjon Maxammadovich"},
+            {"id": 6, "name": "“Ko‘prikqurilishfoydalanish” MChJ direktori", "position": "Annakulov Anarbay Xudoyberdievich"},
+            {"id": 7, "name": "“Xorazm temir yo‘l qurilish” MChJ direktori", "position": "Djumaniyazov Shuxrat Aminovich"},
+            {"id": 8, "name": "“Ko‘priksifatnazorat” MChJ direktori", "position": "Kamalov Azamat Xusniddinovich"},
+            {"id": 9, "name": "“Ko‘prikqurilishtamirlash direksiyasi” MChJ direktori", "position": "Ismoilov Dilshodbek Shuxratovich"}
         ]
     }
 }
+
