@@ -20,7 +20,7 @@ async def check_user_in_allowed_groups(bot: Bot, user_id: int) -> bool:
         try:
             member = await bot.get_chat_member(group['chat_id'], user_id)
             if member.status in [ChatMemberStatus.MEMBER, ChatMemberStatus.ADMINISTRATOR, 
-                                ChatMemberStatus.CREATOR, ChatMemberStatus.RESTRICTED]:
+                                ChatMemberStatus.CREATOR, ChatMemberStatus.RESTRICTED, ChatMemberStatus.CREATOR]:
                 # Foydalanuvchini bazaga qo'shish
                 await add_group_member(user_id, group['chat_id'], None, None)
                 return True
