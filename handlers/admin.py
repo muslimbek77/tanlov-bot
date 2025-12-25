@@ -10,7 +10,7 @@ from database import (
     get_votes_by_nomination, get_total_voters, 
     get_votes_count_by_nomination, reset_votes, get_all_votes
 )
-from pdf_generator import generate_results_pdf
+from pdf_generator import generate_results_pdf, generate_votes_detail_pdf
 
 router = Router()
 
@@ -44,6 +44,41 @@ async def admin_panel(message: Message):
         reply_markup=get_admin_keyboard(),
         parse_mode="HTML"
     )
+
+
+@router.message(Command("whovote"))
+async def who_voted_report(message: Message):
+    """Kim qaysi nomzodga ovoz berganini PDF ko'rinishida yuborish"""
+    if not is_admin(message.from_user.id):
+        await message.answer("❌ Sizda admin huquqi yo'q!")
+        return
+
+    wait_msg = await message.answer("📄 Tahliliy PDF tayyorlanmoqda, iltimos kuting...")
+
+    try:
+        pdf_path = await generate_votes_detail_pdf()
+
+        from aiogram.types import FSInputFile
+        import os
+
+        pdf_file = FSInputFile(pdf_path, filename="ovozlar_tahlili.pdf")
+        await message.answer_document(
+            pdf_file,
+            caption=(
+                "📄 <b>Nominatsiyalar kesimida ovozlar</b>\n\n"
+                "Username, ism-familiya va tanlangan nomzodlar batafsil ko'rsatilgan."
+            ),
+            parse_mode="HTML",
+        )
+
+        os.remove(pdf_path)
+    except Exception as e:
+        await message.answer(f"❌ PDF yaratishda xatolik: {str(e)}")
+    finally:
+        try:
+            await wait_msg.delete()
+        except Exception:
+            pass
 
 @router.callback_query(F.data == "admin:add_group")
 async def request_add_group(callback: CallbackQuery):

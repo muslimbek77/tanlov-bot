@@ -14,7 +14,12 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 
 from config import NOMINATIONS
-from database import get_votes_by_nomination, get_votes_count_by_nomination, get_total_voters
+from database import (
+    get_votes_by_nomination,
+    get_votes_count_by_nomination,
+    get_total_voters,
+    get_all_votes,
+)
 
 # O'zbek tilini qo'llab-quvvatlash uchun font
 plt.rcParams['font.family'] = 'DejaVu Sans'
@@ -394,4 +399,153 @@ async def generate_results_pdf() -> str:
     # PDF yaratish
     doc.build(elements)
     
+    return pdf_filename
+
+
+async def generate_votes_detail_pdf() -> str:
+    """Kim qaysi nomzodga ovoz berganini chiroyli ko'rsatadigan PDF."""
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    pdf_filename = f"tanlov_ovozlar_tahlili_{timestamp}.pdf"
+
+    doc = SimpleDocTemplate(
+        pdf_filename,
+        pagesize=A4,
+        rightMargin=1.2 * cm,
+        leftMargin=1.2 * cm,
+        topMargin=1.4 * cm,
+        bottomMargin=1.4 * cm,
+    )
+
+    styles = getSampleStyleSheet()
+
+    title_style = ParagraphStyle(
+        "VotesTitle",
+        parent=styles["Heading1"],
+        fontSize=17,
+        alignment=1,
+        textColor=colors.HexColor("#1a5f7a"),
+        spaceAfter=18,
+    )
+
+    subtitle_style = ParagraphStyle(
+        "VotesSubtitle",
+        parent=styles["Heading2"],
+        fontSize=13,
+        textColor=colors.HexColor("#2e8b57"),
+        spaceBefore=10,
+        spaceAfter=8,
+    )
+
+    small_grey_style = ParagraphStyle(
+        "SmallGrey",
+        parent=styles["Normal"],
+        fontSize=9,
+        textColor=colors.HexColor("#666666"),
+        spaceAfter=6,
+    )
+
+    cell_style = ParagraphStyle(
+        "VotesCell",
+        parent=styles["Normal"],
+        fontSize=9,
+        leading=11,
+        wordWrap="LTR",
+    )
+
+    cell_header_style = ParagraphStyle(
+        "VotesHeaderCell",
+        parent=styles["Normal"],
+        fontSize=9,
+        leading=11,
+        textColor=colors.whitesmoke,
+        fontName="Helvetica-Bold",
+    )
+
+    elements = []
+    elements.append(Paragraph("KO'PRIKQURILISH AJ", title_style))
+    elements.append(Paragraph("OVOZLAR TAHLILI", title_style))
+
+    all_votes = await get_all_votes()
+    vote_count = len(all_votes)
+    distinct_voters = len({v["user_id"] for v in all_votes})
+    created_at = datetime.now().strftime("%d.%m.%Y %H:%M")
+
+    intro_text = (
+        f"Jami qayd etilgan ovozlar: <b>{vote_count}</b><br/>"
+        f"Ovoz bergan foydalanuvchilar: <b>{distinct_voters}</b><br/>"
+        f"Hisobot sanasi: <b>{created_at}</b>"
+    )
+    elements.append(Paragraph(intro_text, small_grey_style))
+    elements.append(Spacer(1, 0.15 * inch))
+
+    # Nominatsiyalarni har biri uchun jadval ko'rinishida chiqaramiz
+    for idx, (nom_key, nomination) in enumerate(NOMINATIONS.items(), 1):
+        elements.append(Paragraph(nomination["title"], subtitle_style))
+
+        # Nomzodlarga ovoz berganlar ro'yxatini tayyorlash
+        table_data = [[
+            Paragraph("#", cell_header_style),
+            Paragraph("Foydalanuvchi", cell_header_style),
+            Paragraph("Ism, familiya", cell_header_style),
+            Paragraph("Ovoz bergan nomzod", cell_header_style),
+            Paragraph("Sana", cell_header_style),
+        ]]
+
+        nomination_votes = [v for v in all_votes if v["nomination_key"] == nom_key]
+
+        # Vaqt bo'yicha teskari tartibda (yangi ovozlar yuqorida)
+        nomination_votes.sort(key=lambda v: v.get("voted_at", ""), reverse=True)
+
+        if not nomination_votes:
+            table_data.append([
+                Paragraph("-", cell_style),
+                Paragraph("Ovoz berilmagan", cell_style),
+                Paragraph("-", cell_style),
+                Paragraph("-", cell_style),
+                Paragraph("-", cell_style),
+            ])
+        else:
+            # Nomzod nomini tez topish uchun lug'at
+            candidate_lookup = {
+                c["id"]: f"{c['name']} ({c['position']})" for c in nomination["candidates"]
+            }
+
+            for row_idx, vote in enumerate(nomination_votes, 1):
+                username = vote.get("username") or "—"
+                username_text = f"@{username}" if username and username != "—" and not username.startswith("@") else username
+                full_name = vote.get("full_name") or "—"
+                candidate_text = candidate_lookup.get(vote["candidate_id"], "Noma'lum")
+                voted_at = vote.get("voted_at") or ""
+
+                table_data.append([
+                    Paragraph(str(row_idx), cell_style),
+                    Paragraph(username_text, cell_style),
+                    Paragraph(full_name, cell_style),
+                    Paragraph(candidate_text, cell_style),
+                    Paragraph(voted_at, cell_style),
+                ])
+
+        table = Table(table_data, colWidths=[0.4 * inch, 1.5 * inch, 2.8 * inch, 3.5 * inch, 1.2 * inch])
+        table.setStyle(TableStyle([
+            ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#1a5f7a")),
+            ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
+            ("ALIGN", (0, 0), (-1, -1), "LEFT"),
+            ("ALIGN", (0, 0), (0, -1), "CENTER"),
+            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+            ("GRID", (0, 0), (-1, -1), 0.4, colors.HexColor("#cccccc")),
+            ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#f7fafd")]),
+            ("BOTTOMPADDING", (0, 0), (-1, 0), 8),
+            ("TOPPADDING", (0, 0), (-1, 0), 8),
+            ("LEFTPADDING", (0, 0), (-1, -1), 5),
+            ("RIGHTPADDING", (0, 0), (-1, -1), 5),
+        ]))
+
+        elements.append(table)
+        elements.append(Spacer(1, 0.25 * inch))
+
+        if idx < len(NOMINATIONS):
+            elements.append(PageBreak())
+
+    doc.build(elements)
+
     return pdf_filename
