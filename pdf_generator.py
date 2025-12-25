@@ -447,8 +447,8 @@ async def generate_votes_detail_pdf() -> str:
     cell_style = ParagraphStyle(
         "VotesCell",
         parent=styles["Normal"],
-        fontSize=9,
-        leading=11,
+        fontSize=8.5,
+        leading=10,
         wordWrap="LTR",
     )
 
@@ -507,7 +507,8 @@ async def generate_votes_detail_pdf() -> str:
         else:
             # Nomzod nomini tez topish uchun lug'at
             candidate_lookup = {
-                c["id"]: f"{c['name']} ({c['position']})" for c in nomination["candidates"]
+                c["id"]: f"{c['name']}<br/><font size=8 color='#666666'>{c['position']}</font>"
+                for c in nomination["candidates"]
             }
 
             for row_idx, vote in enumerate(nomination_votes, 1):
@@ -525,7 +526,10 @@ async def generate_votes_detail_pdf() -> str:
                     Paragraph(voted_at, cell_style),
                 ])
 
-        table = Table(table_data, colWidths=[0.4 * inch, 1.5 * inch, 2.8 * inch, 3.5 * inch, 1.2 * inch])
+        table = Table(
+            table_data,
+            colWidths=[0.35 * inch, 1.3 * inch, 2.3 * inch, 4.1 * inch, 1.1 * inch],
+        )
         table.setStyle(TableStyle([
             ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#1a5f7a")),
             ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
