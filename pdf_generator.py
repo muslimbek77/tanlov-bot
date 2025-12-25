@@ -409,7 +409,7 @@ async def generate_votes_detail_pdf() -> str:
 
     doc = SimpleDocTemplate(
         pdf_filename,
-        pagesize=A4,
+        pagesize=landscape(A4),
         rightMargin=1.2 * cm,
         leftMargin=1.2 * cm,
         topMargin=1.4 * cm,
