@@ -6,6 +6,7 @@ load_dotenv()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 ADMIN_IDS = [int(x) for x in os.getenv("ADMIN_IDS", "").split(",") if x.strip()]
 DATABASE_PATH = "database.db"
+VOTING_CLOSED = os.getenv("VOTING_CLOSED", "false").lower() == "true"
 
 NOMINATIONS = {
     "nomination_1": {
