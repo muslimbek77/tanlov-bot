@@ -253,15 +253,44 @@ async def process_vote(callback: CallbackQuery):
     if success:
         await callback.answer("✅ Ovozingiz qabul qilindi!", show_alert=True)
         
+        # Foydalanuvchining hamma ovozlarini olish
+        user_votes = await get_user_votes(user.id)
+        
         text = (
             f"✅ <b>Ovoz muvaffaqiyatli berildi!</b>\n\n"
             f"🏆 Nominatsiya: {nomination['title']}\n"
             f"👤 Nomzod: {candidate['name']}\n\n"
-            f"Rahmat, sizning ovozingiz ahamiyatga ega! 🙏"
         )
         
+        # Agar hamma nominatsiyalarda ovoz berilgan bo'lsa
+        if len(user_votes) == len(NOMINATIONS):
+            text += f"🎉 <b>Tebriklaymiz! Siz barcha nominatsiyalarda ovoz berdingiz!</b>\n\n"
+            text += "📊 <b>Sizning ovozlaringiz:</b>\n"
+            text += "─" * 40 + "\n\n"
+            
+            for vote in user_votes:
+                vote_nom_key = vote['nomination_key']
+                vote_candidate_id = vote['candidate_id']
+                
+                if vote_nom_key in NOMINATIONS:
+                    vote_nomination = NOMINATIONS[vote_nom_key]
+                    vote_candidate = None
+                    for c in vote_nomination['candidates']:
+                        if c['id'] == vote_candidate_id:
+                            vote_candidate = c
+                            break
+                    
+                    text += f"🏆 <b>{vote_nomination['title']}</b>\n"
+                    if vote_candidate:
+                        text += f"   👤 {vote_candidate['name']}\n\n"
+            
+            text += "🙏 Rahmat, sizning ovozingiz ahamiyatga ega!"
+        else:
+            text += f"Rahmat, sizning ovozingiz ahamiyatga ega! 🙏"
+        
         kb = InlineKeyboardBuilder()
-        kb.button(text="🗳 Boshqa nominatsiyalar", callback_data="vote:start")
+        if len(user_votes) < len(NOMINATIONS):
+            kb.button(text="🗳 Boshqa nominatsiyalar", callback_data="vote:start")
         kb.button(text="📊 Mening ovozlarim", callback_data="my_votes")
         kb.adjust(1)
         
@@ -277,6 +306,7 @@ async def show_my_votes(callback: CallbackQuery):
     
     if not user_votes:
         text = "📊 <b>Mening ovozlarim</b>\n\n❌ Siz hali hech qanday ovoz bermagansiz!"
+        await callback.answer()
     else:
         text = "📊 <b>Mening ovozlarim</b>\n\n"
         
@@ -295,14 +325,22 @@ async def show_my_votes(callback: CallbackQuery):
                 text += f"🏆 <b>{nomination['title']}</b>\n"
                 if candidate:
                     text += f"   👤 {candidate['name']}\n\n"
-    
-    text += f"\n📈 Jami: {len(user_votes)}/{len(NOMINATIONS)} nominatsiya"
+        
+        # Agar hamma nominatsiyalarda ovoz berilgan bo'lsa
+        if len(user_votes) == len(NOMINATIONS):
+            text += f"\n✅ <b>Tebriklaymiz!</b> Siz barcha {len(NOMINATIONS)} nominatsiyada ovoz berdingiz!"
+            text += "\n\n🙏 Rahmat, sizning ovozingiz ahamiyatga ega!"
+        else:
+            text += f"\n📈 Jami: {len(user_votes)}/{len(NOMINATIONS)} nominatsiya"
     
     kb = InlineKeyboardBuilder()
-    kb.button(text="🗳 Ovoz berish", callback_data="vote:start")
+    if len(user_votes) < len(NOMINATIONS):
+        kb.button(text="🗳 Boshqa nominatsiyalar", callback_data="vote:start")
+    kb.button(text="◀️ Orqaga", callback_data="vote:start")
     
     await callback.message.edit_text(text, reply_markup=kb.as_markup(), parse_mode="HTML")
-    await callback.answer()
+    if not user_votes:
+        await callback.answer()
 
 @router.message(Command("help"))
 async def help_command(message: Message):
