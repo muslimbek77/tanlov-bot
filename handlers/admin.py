@@ -4,7 +4,7 @@ from aiogram.types import KeyboardButtonRequestChat
 from aiogram.filters import Command
 from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 
-from config import ADMIN_IDS, NOMINATIONS
+import config
 from database import (
     add_group, remove_group, get_all_groups, 
     get_votes_by_nomination, get_total_voters, 
@@ -16,7 +16,7 @@ router = Router()
 
 def is_admin(user_id: int) -> bool:
     """Admin ekanligini tekshirish"""
-    return user_id in ADMIN_IDS
+    return user_id in config.ADMIN_IDS
 
 def get_admin_keyboard():
     """Admin panel tugmalari"""
@@ -28,6 +28,8 @@ def get_admin_keyboard():
     kb.button(text="📄 PDF yuklash", callback_data="admin:pdf")
     kb.button(text="🔄 Ovozlarni tozalash", callback_data="admin:reset")
     kb.button(text="📈 Statistika", callback_data="admin:stats")
+    voting_status = "🔒 Tanovni yopish" if not config.VOTING_CLOSED else "🔓 Tanovni ochish"
+    kb.button(text=voting_status, callback_data="admin:toggle_voting")
     kb.adjust(2)
     return kb.as_markup()
 
@@ -318,7 +320,7 @@ async def show_results(callback: CallbackQuery):
     
     text = "📊 <b>TANLOV NATIJALARI</b>\n\n"
     
-    for nom_key, nomination in NOMINATIONS.items():
+    for nom_key, nomination in config.NOMINATIONS.items():
         text += f"🏆 <b>{nomination['title']}</b>\n"
         text += "─" * 30 + "\n"
         
@@ -431,7 +433,7 @@ async def show_stats(callback: CallbackQuery):
     text += f"🗳 Jami ovozlar: <b>{len(all_votes)}</b>\n\n"
     
     text += "📊 <b>Nominatsiyalar bo'yicha:</b>\n"
-    for nom_key, nomination in NOMINATIONS.items():
+    for nom_key, nomination in config.NOMINATIONS.items():
         count = await get_votes_count_by_nomination(nom_key)
         text += f"• {nomination['title'][:30]}...: <b>{count}</b> ta ovoz\n"
     
@@ -455,3 +457,29 @@ async def back_to_admin(callback: CallbackQuery):
         parse_mode="HTML"
     )
     await callback.answer()
+
+@router.callback_query(F.data == "admin:toggle_voting")
+async def toggle_voting(callback: CallbackQuery):
+    """Tanovni ochish/yopish"""
+    if not is_admin(callback.from_user.id):
+        await callback.answer("❌ Sizda admin huquqi yo'q!", show_alert=True)
+        return
+    
+    # Voting statusni o'zgartirish
+    config.VOTING_CLOSED = not config.VOTING_CLOSED
+    
+    status_text = "🔒 YOPILGAN" if config.VOTING_CLOSED else "🔓 OCHIQ"
+    action_text = "yopildi" if config.VOTING_CLOSED else "ochildi"
+    
+    await callback.answer(
+        f"✅ Tanlov {action_text}!",
+        show_alert=True
+    )
+    
+    # Admin panelga qaytish
+    await callback.message.edit_text(
+        "🔐 <b>Admin Panel</b>\n\n"
+        "Quyidagi amallardan birini tanlang:",
+        reply_markup=get_admin_keyboard(),
+        parse_mode="HTML"
+    )

@@ -4,7 +4,7 @@ from aiogram.filters import Command
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.enums import ChatMemberStatus
 
-from config import NOMINATIONS
+from config import NOMINATIONS, VOTING_CLOSED
 from database import (
     has_voted, add_vote, 
     get_user_votes, add_group_member, is_allowed_group, get_all_groups
@@ -51,18 +51,27 @@ async def start_command(message: Message, bot: Bot):
         return
     
     # Shaxsiy chatda
-    text = (
-        "🗳 <b>Ko'prikqurilish Tanlov Botiga xush kelibsiz!</b>\n\n"
-        "Bu bot orqali siz 3 ta nominatsiyada o'z ovozingizni berishingiz mumkin:\n\n"
-        "🏆 <b>1.</b> Yilning eng adolatli va shaffof boshqaruv raisi o'rinbosari\n"
-        "🏆 <b>2.</b> Yilning eng adolatli va shaffof tizim korxona rahbari\n"
-        "🏆 <b>3.</b> Yilning eng adolatli va shaffof markaziy apparat boshqarma va bo'lim boshlig'i\n\n"
-        "📌 Har bir nominatsiyada faqat <b>1 marta</b> ovoz berishingiz mumkin.\n\n"
-        "Ovoz berish uchun /vote buyrug'ini bosing."
-    )
+    if VOTING_CLOSED:
+        text = (
+            "🗳 <b>Ko'prikqurilish Tanlov Botiga xush kelibsiz!</b>\n\n"
+            "❌ <b>TANLOV YAKUNLANDI!</b>\n\n"
+            "Ovoz berish muddati tugagang. Ushbu vaqt ichida ovoz berish mumkin emas.\n\n"
+            "📊 Natijalar uchun admin bilan bog'laning."
+        )
+    else:
+        text = (
+            "🗳 <b>Ko'prikqurilish Tanlov Botiga xush kelibsiz!</b>\n\n"
+            "Bu bot orqali siz 3 ta nominatsiyada o'z ovozingizni berishingiz mumkin:\n\n"
+            "🏆 <b>1.</b> Yilning eng adolatli va shaffof boshqaruv raisi o'rinbosari\n"
+            "🏆 <b>2.</b> Yilning eng adolatli va shaffof tizim korxona rahbari\n"
+            "🏆 <b>3.</b> Yilning eng adolatli va shaffof markaziy apparat boshqarma va bo'lim boshlig'i\n\n"
+            "📌 Har bir nominatsiyada faqat <b>1 marta</b> ovoz berishingiz mumkin.\n\n"
+            "Ovoz berish uchun /vote buyrug'ini bosing."
+        )
     
     kb = InlineKeyboardBuilder()
-    kb.button(text="🗳 Ovoz berish", callback_data="vote:start")
+    if not VOTING_CLOSED:
+        kb.button(text="🗳 Ovoz berish", callback_data="vote:start")
     kb.button(text="📊 Mening ovozlarim", callback_data="my_votes")
     kb.adjust(1)
     
@@ -73,6 +82,15 @@ async def vote_command(message: Message, bot: Bot):
     """Ovoz berish buyrug'i"""
     if message.chat.type != "private":
         await message.answer("❗️ Ovoz berish faqat shaxsiy chatda mumkin!")
+        return
+    
+    # Tanlov yakunlangan bo'lsa
+    if VOTING_CLOSED:
+        await message.answer(
+            "❌ <b>Tanlov yakunlandi!</b>\n\n"
+            "Ovoz berish muddati tugagang. Ushbu vaqt ichida ovoz berish mumkin emas.",
+            parse_mode="HTML"
+        )
         return
     
     # Guruh a'zosi ekanligini tekshirish (Telegram API orqali)
@@ -128,6 +146,14 @@ async def start_voting(callback: CallbackQuery, bot: Bot):
         await callback.answer("❗️ Ovoz berish faqat shaxsiy chatda mumkin!", show_alert=True)
         return
     
+    # Tanlov yakunlangan bo'lsa
+    if VOTING_CLOSED:
+        await callback.answer(
+            "❌ Tanlov yakunlandi! Ovoz berish muddati tugagang.",
+            show_alert=True
+        )
+        return
+    
     if not await check_user_in_allowed_groups(bot, callback.from_user.id):
         await callback.answer(
             "❌ Avval ruxsat berilgan guruhga a'zo bo'ling!",
@@ -179,6 +205,14 @@ async def show_candidates(callback: CallbackQuery):
     nom_key = callback.data.split(":")[1]
     user_id = callback.from_user.id
     
+    # Tanlov yakunlangan bo'lsa
+    if VOTING_CLOSED:
+        await callback.answer(
+            "❌ Tanlov yakunlandi! Ovoz berish muddati tugagang.",
+            show_alert=True
+        )
+        return
+    
     if nom_key not in NOMINATIONS:
         await callback.answer("❌ Nominatsiya topilmadi!", show_alert=True)
         return
@@ -218,6 +252,14 @@ async def process_vote(callback: CallbackQuery):
     """Ovozni qayd etish"""
     parts = callback.data.split(":")
     if len(parts) != 3:
+        return
+    
+    # Tanlov yakunlangan bo'lsa
+    if VOTING_CLOSED:
+        await callback.answer(
+            "❌ Tanlov yakunlandi! Ovoz berish muddati tugagang.",
+            show_alert=True
+        )
         return
     
     _, nom_key, candidate_id = parts
