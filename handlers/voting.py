@@ -61,11 +61,9 @@ async def start_command(message: Message, bot: Bot):
     else:
         text = (
             "🗳 <b>Ko'prikqurilish Tanlov Botiga xush kelibsiz!</b>\n\n"
-            "Bu bot orqali siz 3 ta nominatsiyada o'z ovozingizni berishingiz mumkin:\n\n"
-            "🏆 <b>1.</b> Yilning eng adolatli va shaffof boshqaruv raisi o'rinbosari\n"
-            "🏆 <b>2.</b> Yilning eng adolatli va shaffof tizim korxona rahbari\n"
-            "🏆 <b>3.</b> Yilning eng adolatli va shaffof markaziy apparat boshqarma va bo'lim boshlig'i\n\n"
-            "📌 Har bir nominatsiyada faqat <b>1 marta</b> ovoz berishingiz mumkin.\n\n"
+            "Bu bot orqali siz o'z ovozingizni berishingiz mumkin:\n\n"
+            "🏆 <b>Yilning eng adolatli va shaffof boshqaruv raisi o'rinbosari</b>\n\n"
+            "📌 Ushbu nominatsiyada faqat <b>1 marta</b> ovoz berishingiz mumkin.\n\n"
             "Ovoz berish uchun /vote buyrug'ini bosing."
         )
     
@@ -111,9 +109,7 @@ async def show_nominations(message: Message):
     voted_nominations = {v['nomination_key'] for v in user_votes}
     
     short_titles = {
-        "nomination_1": "Boshqaruv raisi o'rinbosari",
-        "nomination_2": "Tizim korxona rahbari",
-        "nomination_3": "Boshqarma/bo'lim boshlig'i"
+        "nomination_1": "Boshqaruv raisi o'rinbosari"
     }
     
     text = "🗳 <b>TANLOV NOMINATSIYALARI</b>\n\n"
@@ -170,9 +166,7 @@ async def show_nominations_callback(callback: CallbackQuery):
     voted_nominations = {v['nomination_key'] for v in user_votes}
     
     short_titles = {
-        "nomination_1": "Boshqaruv raisi o'rinbosari",
-        "nomination_2": "Tizim korxona rahbari",
-        "nomination_3": "Boshqarma/bo'lim boshlig'i"
+        "nomination_1": "Boshqaruv raisi o'rinbosari"
     }
     
     text = "🗳 <b>TANLOV NOMINATSIYALARI</b>\n\n"
